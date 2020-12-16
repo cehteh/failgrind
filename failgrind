@@ -1,0 +1,2 @@
+#!/bin/sh
+exec gdb -d . -ex 'source failgrind.py' --args "$@"

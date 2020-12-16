@@ -1,0 +1,21 @@
+* Introduction
+
+  Failgrind is a uses gdb to instrument a program for checking coverage over error paths.
+
+* How it works
+
+  The user registers functions where errors shall be injected together with gdb instructions
+  that define how to inject this error:
+
+  : Intercept('malloc', ['set *__errno_location()=12', 'return (void*)0'])
+  : Intercept('open', [['set *__errno_location()=13', 'return (int)-1'], #EACCESS
+  :                    ['set *__errno_location()=2', 'return (int)-1'], #ENOENT
+  :                   ])
+
+  Failgrind intercepts these functions and calculates a checksum over the backtrace leading to
+  the call. This checksum identifies every possibly path leading to the call uniquely. It
+  keeps a database if this path was already checked and iterates through the defined
+  injections and records the state.
+
+  The program is started repeatly and crashes are recorded, eventually permutating over all
+  possible error paths.
